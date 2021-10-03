@@ -20,8 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.amazon.dataprepper.plugins.sink.opensearch.index.IndexConstants.*;
-import static org.junit.Assert.*;
+import static com.amazon.dataprepper.plugins.sink.opensearch.index.IndexConstants.RAW_DEFAULT_TEMPLATE_FILE;
+import static com.amazon.dataprepper.plugins.sink.opensearch.index.IndexConstants.SERVICE_MAP_DEFAULT_TEMPLATE_FILE;
+import static com.amazon.dataprepper.plugins.sink.opensearch.index.IndexConstants.TYPE_TO_DEFAULT_ALIAS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("unchecked")
 public class IndexConfigurationTests {

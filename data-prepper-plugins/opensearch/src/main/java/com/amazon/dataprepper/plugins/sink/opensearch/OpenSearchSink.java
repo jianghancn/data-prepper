@@ -53,6 +53,7 @@ public class OpenSearchSink extends AbstractSink<Record<String>> {
   private BufferedWriter dlqWriter;
   private final OpenSearchSinkConfiguration openSearchSinkConfig;
   private RestHighLevelClient restHighLevelClient;
+  private IndexManagerFactory indexManagerFactory;
   private IndexManager indexManager;
   private Supplier<BulkRequest> bulkRequestSupplier;
   private BulkRetryStrategy bulkRetryStrategy;
@@ -82,7 +83,8 @@ public class OpenSearchSink extends AbstractSink<Record<String>> {
   public void initialize() throws IOException {
     LOG.info("Initializing OpenSearch sink");
     restHighLevelClient = openSearchSinkConfig.getConnectionConfiguration().createClient();
-    indexManager = IndexManagerFactory.getIndexManager(indexType, restHighLevelClient, openSearchSinkConfig);
+    indexManagerFactory = new IndexManagerFactory();
+    indexManager = indexManagerFactory.getIndexManager(indexType, restHighLevelClient, openSearchSinkConfig);
     final boolean isISMEnabled = indexManager.checkISMEnabled();
     final Optional<String> policyIdOptional = isISMEnabled ? indexManager.checkAndCreatePolicy() :
             Optional.empty();

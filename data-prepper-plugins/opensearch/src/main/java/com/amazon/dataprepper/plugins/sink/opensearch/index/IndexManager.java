@@ -7,7 +7,13 @@ import org.opensearch.action.admin.cluster.settings.ClusterGetSettingsResponse;
 import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.client.indices.*;
+import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.client.indices.GetIndexTemplatesRequest;
+import org.opensearch.client.indices.GetIndexTemplatesResponse;
+import org.opensearch.client.indices.IndexTemplateMetadata;
+import org.opensearch.client.indices.IndexTemplatesExistRequest;
+import org.opensearch.client.indices.PutIndexTemplateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,18 +22,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class IndexManager {
 
-    public static final String INDEX_ALIAS_USED_AS_INDEX_ERROR = "Invalid alias name [%s], an index exists with the same name as the alias";
+    public static final String INDEX_ALIAS_USED_AS_INDEX_ERROR
+            = "Invalid alias name [%s], an index exists with the same name as the alias";
     protected RestHighLevelClient restHighLevelClient;
     protected OpenSearchSinkConfiguration openSearchSinkConfiguration;
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
-    protected IndexManager(final RestHighLevelClient restHighLevelClient, OpenSearchSinkConfiguration openSearchSinkConfiguration){
-        Objects.requireNonNull(restHighLevelClient);
-        Objects.requireNonNull(openSearchSinkConfiguration);
+    protected IndexManager(final RestHighLevelClient restHighLevelClient, final OpenSearchSinkConfiguration openSearchSinkConfiguration){
+        checkNotNull(restHighLevelClient);
+        checkNotNull(openSearchSinkConfiguration);
         this.restHighLevelClient = restHighLevelClient;
         this.openSearchSinkConfiguration = openSearchSinkConfiguration;
     }
@@ -74,7 +88,7 @@ public abstract class IndexManager {
         return request;
     }
 
-    protected List<String> getIndexPatterns(String indexAlias){
+    protected List<String> getIndexPatterns(final String indexAlias){
         return  Collections.singletonList(indexAlias);
     }
 
@@ -97,7 +111,6 @@ public abstract class IndexManager {
         }
     }
 
-    // TODO: Unit tests for this (and for the rest of the class)
     protected boolean shouldCreateIndexTemplate(final String indexTemplateName) throws IOException {
         final Optional<IndexTemplateMetadata> indexTemplateMetadataOptional = getIndexTemplateMetadata(indexTemplateName);
         if (indexTemplateMetadataOptional.isPresent()) {
@@ -126,16 +139,16 @@ public abstract class IndexManager {
         }
     }
 
-    protected boolean checkIfIndexTemplateExistsOnServer(final String indexAlias) throws IOException {
+    protected boolean checkIfIndexExistsOnServer(final String indexAlias) throws IOException {
         return restHighLevelClient.indices().exists(new GetIndexRequest(indexAlias), RequestOptions.DEFAULT);
     }
 
     public void checkAndCreateIndex() throws IOException {
         // Check alias exists
         final String indexAlias = openSearchSinkConfiguration.getIndexConfiguration().getIndexAlias();
-        final boolean indexTemplateExists = checkIfIndexTemplateExistsOnServer(indexAlias);
+        final boolean indexExists = checkIfIndexExistsOnServer(indexAlias);
 
-        if (!indexTemplateExists) {
+        if (!indexExists) {
             final CreateIndexRequest createIndexRequest = getCreateIndexRequest(indexAlias);
             try {
                 restHighLevelClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
@@ -155,7 +168,7 @@ public abstract class IndexManager {
         }
     }
 
-    protected CreateIndexRequest getCreateIndexRequest(String indexAlias) {
+    protected CreateIndexRequest getCreateIndexRequest(final String indexAlias) {
         final String initialIndexName = indexAlias;
         return new CreateIndexRequest(initialIndexName);
     }

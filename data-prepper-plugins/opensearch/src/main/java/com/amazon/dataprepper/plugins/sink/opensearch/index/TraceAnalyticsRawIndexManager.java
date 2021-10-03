@@ -22,7 +22,7 @@ public class TraceAnalyticsRawIndexManager extends IndexManager {
     }
 
     @Override
-    protected List<String> getIndexPatterns(String indexAlias){
+    protected List<String> getIndexPatterns(final String indexAlias){
         return  Collections.singletonList(indexAlias + "-*");
     }
 
@@ -66,12 +66,12 @@ public class TraceAnalyticsRawIndexManager extends IndexManager {
     }
 
     @Override
-    protected boolean checkIfIndexTemplateExistsOnServer(final String indexAlias) throws IOException {
+    protected boolean checkIfIndexExistsOnServer(final String indexAlias) throws IOException {
         return restHighLevelClient.indices().existsAlias(new GetAliasesRequest().aliases(indexAlias), RequestOptions.DEFAULT);
     }
 
     @Override
-    protected CreateIndexRequest getCreateIndexRequest(String indexAlias) {
+    protected CreateIndexRequest getCreateIndexRequest(final String indexAlias) {
         final String initialIndexName = indexAlias + "-000001";
         final CreateIndexRequest createIndexRequest = new CreateIndexRequest(initialIndexName);
         createIndexRequest.alias(new Alias(indexAlias).writeIndex(true));

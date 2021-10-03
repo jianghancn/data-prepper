@@ -5,9 +5,9 @@ import org.opensearch.client.RestHighLevelClient;
 
 public class IndexManagerFactory {
 
-    public static IndexManager getIndexManager(final IndexType indexType,
-                                               final RestHighLevelClient restHighLevelClient,
-                                               final OpenSearchSinkConfiguration openSearchSinkConfiguration) {
+    public final IndexManager getIndexManager(final IndexType indexType,
+                                        final RestHighLevelClient restHighLevelClient,
+                                        final OpenSearchSinkConfiguration openSearchSinkConfiguration) {
         switch (indexType) {
             case TRACE_ANALYTICS_RAW:
                 return new TraceAnalyticsRawIndexManager(restHighLevelClient, openSearchSinkConfiguration);
