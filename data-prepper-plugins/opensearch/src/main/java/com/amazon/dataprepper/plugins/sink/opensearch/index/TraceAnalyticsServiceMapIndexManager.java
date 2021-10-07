@@ -1,21 +1,15 @@
 package com.amazon.dataprepper.plugins.sink.opensearch.index;
 
 import com.amazon.dataprepper.plugins.sink.opensearch.OpenSearchSinkConfiguration;
+import com.amazon.dataprepper.plugins.sink.opensearch.index.ismpolicy.NoIsmPolicyCreation;
 import org.opensearch.client.RestHighLevelClient;
-
-import java.io.IOException;
-import java.util.Optional;
 
 public class TraceAnalyticsServiceMapIndexManager extends IndexManager {
 
     public TraceAnalyticsServiceMapIndexManager(final RestHighLevelClient restHighLevelClient,
                                                 final OpenSearchSinkConfiguration openSearchSinkConfiguration) {
         super(restHighLevelClient, openSearchSinkConfiguration);
-    }
-
-    @Override
-    public Optional<String> checkAndCreatePolicy() throws IOException {
-        return Optional.empty();
+        this.ismPolicyCreationStrategy = new NoIsmPolicyCreation();
     }
 
 }
